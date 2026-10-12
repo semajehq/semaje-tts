@@ -37,9 +37,17 @@ The voice catalog and language resolution come from
 
 Warm Piper synthesis: ~0.1 s for 4 s of speech on an M4 CPU.
 
+## Training new voices
+
+`training/` builds commercially usable (CC-BY-SA-4.0) multi-speaker Piper voices
+from Google WAXAL for Kikuyu, Dholuo, Igbo, Hausa, Yoruba, Wolof, Luganda,
+Swahili, Akan, Ewe, Fula, Acholi, and Nyankole. See
+[training/README.md](training/README.md): one command on a GPU box per language.
+
 ## Coverage gap, stated plainly
 
-No open voice exists today for Igbo, Zulu, Xhosa, Wolof, or Luo (neither Piper
-nor MMS-TTS ships them). Train a Piper voice (piper1-gpl training recipe, ~1 h of
-clean single-speaker audio) and drop it in `TTS_CUSTOM_VOICE_DIR`; semaje picks
-it up with no code change.
+No prebuilt open voice exists today for Igbo, Zulu, Xhosa, Wolof, or Luo
+(neither Piper nor MMS-TTS ships them). For Igbo, Wolof, and Luo (Dholuo) plus
+Kikuyu, `training/` builds one from WAXAL. Zulu and Xhosa are not in WAXAL yet:
+any Piper-format voice dropped in `TTS_CUSTOM_VOICE_DIR` is picked up with no
+code change.

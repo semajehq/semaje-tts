@@ -58,6 +58,9 @@ def transcribe(url: str, audio: bytes, language: str, token: str) -> dict:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--langs", default="en,sw,fr")
+    ap.add_argument("--voice", default="", help="score one voice (e.g. custom:semaje-kik-waxal)")
+    ap.add_argument("--sentences-file", default="", help="held-out lines (heldout.csv from training: id|text)")
+    ap.add_argument("--speaker", type=int, default=None)
     ap.add_argument("--report", default=os.getenv("EVAL_REPORT_PATH", "data/observability/tts-roundtrip-eval.json"))
     args = ap.parse_args(argv)
     tts = os.getenv("TTS_URL", "http://localhost:8012").rstrip("/")
@@ -65,15 +68,25 @@ def main(argv=None) -> int:
     thresholds = {k: v for k, v in json.loads((HERE / "roundtrip_thresholds.json").read_text(encoding="utf-8")).items()
                   if not k.startswith("_")}
     rows, failures = [], []
+    jobs = []
     for lang in [l.strip() for l in args.langs.split(",") if l.strip()]:
-        text = SENTENCES.get(lang)
-        if not text:
+        if args.sentences_file:
+            import csv
+            with open(args.sentences_file, encoding="utf-8") as fh:
+                jobs += [(lang, row[-1]) for row in csv.reader(fh, delimiter="|", escapechar="\\") if row]
+        elif SENTENCES.get(lang):
+            jobs.append((lang, SENTENCES[lang]))
+        else:
             print(f"skip {lang}: no reference sentence", file=sys.stderr)
-            continue
+    for lang, text in jobs:
         try:
             t0 = time.perf_counter()
-            audio, headers = post_json(f"{tts}/synthesize", {"text": text, "language": lang, "format": "wav"},
-                                       os.getenv("TTS_API_TOKEN", ""))
+            body = {"text": text, "language": lang, "format": "wav"}
+            if args.voice:
+                body["voice"] = args.voice
+            if args.speaker is not None:
+                body["speaker"] = args.speaker
+            audio, headers = post_json(f"{tts}/synthesize", body, os.getenv("TTS_API_TOKEN", ""))
             synth_s = time.perf_counter() - t0
         except urllib.error.HTTPError as exc:
             detail = json.loads(exc.read() or b"{}")
@@ -92,6 +105,9 @@ def main(argv=None) -> int:
         if not passed:
             failures.append(row)
         print(f"[{'PASS' if passed else 'FAIL'}] {lang:4} voice={row['voice']:28} CER={score:.3f} (limit {limit}) heard={row['heard']!r}")
+    scored = [r for r in rows if "cer" in r]
+    if len(scored) > 1:
+        print(f"mean CER over {len(scored)} lines: {sum(r['cer'] for r in scored) / len(scored):.3f}")
     Path(args.report).parent.mkdir(parents=True, exist_ok=True)
     Path(args.report).write_text(json.dumps({"results": rows, "passed": not failures}, indent=2, ensure_ascii=False), encoding="utf-8")
     print("EVAL PASS" if not failures else f"EVAL FAIL ({len(failures)})")

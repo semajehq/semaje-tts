@@ -52,6 +52,8 @@ class Voice:
     quality: str = "medium"
     locale: str | None = None
     speakers: int = 1
+    speaker_names: list = field(default_factory=list)
+    default_speaker: int | None = None
     size_bytes: int = 0
     license: dict = field(default_factory=dict)
     files: list = field(default_factory=list)
@@ -64,6 +66,8 @@ class Voice:
         d = asdict(self)
         d["sizeBytes"] = d.pop("size_bytes")
         d["noncommercial"] = self.noncommercial
+        d["speakerNames"] = d.pop("speaker_names")
+        d["defaultSpeaker"] = d.pop("default_speaker")
         return d
 
 
@@ -96,10 +100,14 @@ def custom_voices(directory: Path | None = None) -> list[Voice]:
             continue
         if lang is None:
             continue
+        names = meta.get("speakers") or []
         voices.append(Voice(
             id=f"custom:{voice_id}", engine="custom", language=lang.code, name=meta.get("name", voice_id),
             quality=meta.get("quality", "medium"),
-            license={"dataset": meta.get("license"), "commercialUse": meta.get("commercialUse", "verify")},
+            speakers=max(1, len(names)), speaker_names=list(names),
+            default_speaker=meta.get("defaultSpeaker") if names else None,
+            license={"dataset": meta.get("license"), "commercialUse": meta.get("commercialUse", "verify"),
+                     "attribution": meta.get("attribution")},
             files=[f"{voice_id}.onnx", f"{voice_id}.onnx.json"],
         ))
     return voices

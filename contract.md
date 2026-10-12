@@ -18,7 +18,10 @@ non-commercial voice exists and it is not allowed: **403
 `license_noncommercial`** with the remedy. No voice at all: **404 `no_voice`**.
 
 Custom voice: `<id>.onnx` + `<id>.onnx.json` (Piper format) + `<id>.semaje.json`
-`{"language": "kik_Latn", "name": "Mumbi", "license": "CC-BY-4.0", "commercialUse": "yes"}`.
+`{"language": "kik_Latn", "name": "Mumbi", "license": "CC-BY-4.0", "commercialUse": "yes",
+"speakers": ["Female 2", "Male 1"], "defaultSpeaker": 0, "attribution": "..."}`.
+Multi-speaker voices honor `speaker` (index into `speakers`); out-of-range is 400.
+`training/` produces these bundles.
 
 ## `POST /synthesize` (JSON)
 

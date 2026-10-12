@@ -1,0 +1,8 @@
+piper-tts[train]==1.8.0
+pyarrow>=14
+# Pinned: torch >= 2.9 switches torch.onnx.export to the dynamo exporter, which
+# cannot trace Piper's VITS model (export_onnx fails). 2.8 uses the legacy
+# exporter Piper 1.8 was written for. torchaudio must match torch's minor
+# version; Piper's UTMOS quality predictor (val_mos) needs it.
+torch==2.8.*
+torchaudio==2.8.*

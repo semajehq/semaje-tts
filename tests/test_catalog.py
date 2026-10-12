@@ -93,3 +93,20 @@ def test_mms_voices_only_listed_when_allowed():
     assert not any(v.engine == "mms" for v in catalog.all_voices(allow_noncommercial=False))
     mms = [v for v in catalog.all_voices(allow_noncommercial=True) if v.engine == "mms"]
     assert len(mms) >= 1000
+
+
+def test_multispeaker_custom_voice_metadata(tmp_path):
+    for suffix in (".onnx", ".onnx.json"):
+        (tmp_path / f"semaje-kik-waxal{suffix}").write_bytes(b"x")
+    (tmp_path / "semaje-kik-waxal.semaje.json").write_text(json.dumps({
+        "language": "kik", "name": "Kikuyu (WAXAL, 8 speakers)", "speakers": ["Female 1", "Male 2"],
+        "defaultSpeaker": 1, "license": "CC-BY-SA-4.0", "commercialUse": "yes",
+        "attribution": "Trained on Google WAXAL (Loud and Clear)"}))
+    (voice,) = catalog.custom_voices(tmp_path)
+    assert (voice.speakers, voice.default_speaker, voice.speaker_names) == (2, 1, ["Female 1", "Male 2"])
+    assert voice.license["attribution"].startswith("Trained on Google WAXAL")
+    assert not voice.noncommercial
+    # A commercially licensed custom voice now serves Kikuyu without the MMS opt-in.
+    assert choose_voice("kik", None, [voice] + piper(), allow_noncommercial=False).id == "custom:semaje-kik-waxal"
+    d = voice.to_dict()
+    assert d["speakerNames"] == ["Female 1", "Male 2"] and d["defaultSpeaker"] == 1

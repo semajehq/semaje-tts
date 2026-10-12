@@ -184,7 +184,10 @@ def _synthesize_blocking(req: SynthesizeRequest):
                                  installed_ids())
     started = time.perf_counter()
     synth = cache.get(voice)
-    audio = synth.synthesize(chunk(text, config.CHUNK_CHARS), speed=req.speed, speaker=req.speaker)
+    speaker = req.speaker if req.speaker is not None else voice.default_speaker
+    if speaker is not None and speaker >= max(1, voice.speakers):
+        raise TextError(f"Voice {voice.id} has {voice.speakers} speaker(s); speaker {speaker} does not exist.")
+    audio = synth.synthesize(chunk(text, config.CHUNK_CHARS), speed=req.speed, speaker=speaker)
     data, mime = encode(audio.samples, audio.sample_rate, req.format)
     elapsed = time.perf_counter() - started
     metrics.CHARS.labels(voice.engine).inc(len(text))

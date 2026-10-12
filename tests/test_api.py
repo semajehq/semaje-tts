@@ -117,3 +117,9 @@ def test_synth_cache_is_bounded(client):
 def test_metrics(client):
     client.post("/synthesize", json={"text": "hi", "language": "en"})
     assert "semaje_tts_requests_total" in client.get("/metrics").text
+
+
+def test_speaker_out_of_range_is_400(client):
+    r = client.post("/synthesize", json={"text": "hi", "language": "en", "speaker": 5})
+    assert r.status_code == 400
+    assert "speaker" in r.json()["error"]
