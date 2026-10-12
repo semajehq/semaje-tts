@@ -7,9 +7,9 @@ import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
-import services.tts.app as tts_app
-from services.tts import config
-from services.tts.engines.base import Audio, Synth
+import semaje_tts.app as tts_app
+from semaje_tts import config
+from semaje_tts.engines.base import Audio, Synth
 
 
 class FakeSynth(Synth):

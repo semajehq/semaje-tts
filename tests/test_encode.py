@@ -5,7 +5,7 @@ import wave
 import numpy as np
 import pytest
 
-from services.tts.encode import FormatError, encode, wav_bytes
+from semaje_tts.encode import FormatError, encode, wav_bytes
 
 
 def test_wav_bytes_clips_and_encodes_16bit_mono():

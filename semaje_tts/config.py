@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 
-DEFAULT_VOICE_ROOT = Path(__file__).resolve().parents[2] / "data" / "voices"
+DEFAULT_VOICE_ROOT = Path(__file__).resolve().parents[1] / "data" / "voices"
 
 
 def _env(name: str, default: str) -> str:

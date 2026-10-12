@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from services.tts import catalog
-from services.tts.catalog import LicenseBlocked, VoiceError, choose_voice
+from semaje_tts import catalog
+from semaje_tts.catalog import LicenseBlocked, VoiceError, choose_voice
 
 
 def piper():

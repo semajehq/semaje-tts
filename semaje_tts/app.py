@@ -14,7 +14,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
 
-from packages.languages import UnknownLanguage, registry
+from semaje_languages import UnknownLanguage, registry
 
 from . import catalog, config, metrics
 from .encode import FormatError, encode

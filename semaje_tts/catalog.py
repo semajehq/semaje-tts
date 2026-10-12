@@ -16,11 +16,10 @@ from dataclasses import dataclass, field, asdict
 from functools import lru_cache
 from pathlib import Path
 
-from packages.languages import Language, UnknownLanguage, registry
+from semaje_languages import Language, UnknownLanguage, piper_catalog, registry
 
 from . import config
 
-CATALOG_PATH = Path(__file__).resolve().parents[2] / "packages" / "languages" / "tts-voices.json"
 QUALITY_RANK = {"high": 0, "medium": 1, "low": 2, "x_low": 3}
 MMS_LICENSE = {
     "engine": "MIT (transformers VITS: Apache-2.0)",
@@ -70,14 +69,13 @@ class Voice:
 
 @lru_cache(maxsize=1)
 def piper_voices() -> tuple[Voice, ...]:
-    data = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
     return tuple(
         Voice(
             id=v["id"], engine="piper", language=v["language"], name=v["id"].split("-")[1],
             quality=v["quality"], locale=v["locale"], speakers=v["speakers"], size_bytes=v["sizeBytes"],
             license=v["license"], files=v["files"],
         )
-        for v in data["piper"]
+        for v in piper_catalog()
     )
 
 

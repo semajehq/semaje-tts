@@ -5,8 +5,8 @@ with the RUNNING STT service, and scores character error rate. A voice that STT
 cannot understand is a voice people will struggle with too. Thresholds per
 language live in roundtrip_thresholds.json; the run fails on regression.
 
-    services/tts/.venv/bin/python -m services.tts.evals.eval_roundtrip
-    TTS_URL=... STT_URL=... python -m services.tts.evals.eval_roundtrip --langs sw,en,kik
+    make eval                                       # needs this service and semaje-stt running
+    TTS_URL=... STT_URL=... python -m semaje_tts.evals.eval_roundtrip --langs sw,en,kik
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-from services.stt.evals.eval_fleurs import cer
+from semaje_tts.evals.metrics import cer
 
 HERE = Path(__file__).resolve().parent
 SENTENCES = {

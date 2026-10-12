@@ -1,0 +1,9 @@
+# semaje-tts is a service, not a library; this file only configures tooling.
+[project]
+name = "semaje-tts"
+version = "1.0.0"
+requires-python = ">=3.10,<3.13"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"

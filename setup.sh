@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # One-time setup for the TTS service. Idempotent.
-#   services/tts/setup.sh                    # Piper only (commercial-safe default)
-#   SEMAJE_MMS=1 services/tts/setup.sh       # + MMS-TTS runtime (non-commercial weights; opt in at runtime)
-#   TTS_PRELOAD="sw_CD-lanfrica-medium en_US-lessac-high" services/tts/setup.sh
+#   ./setup.sh                    # Piper only (commercial-safe default)
+#   SEMAJE_MMS=1 ./setup.sh       # + MMS-TTS runtime (non-commercial weights; opt in at runtime)
+#   TTS_PRELOAD="sw_CD-lanfrica-medium en_US-lessac-high" ./setup.sh
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-ROOT="$(cd "$HERE/../.." && pwd)"
+ROOT="$HERE"
 SEMAJE_HOME="${SEMAJE_HOME:-$HOME/.local/share/semaje}"
 VENV="${TTS_VENV:-$SEMAJE_HOME/venv-tts}"
 export TTS_VOICE_DIR="${TTS_VOICE_DIR:-$SEMAJE_HOME/voices}"
@@ -22,8 +22,8 @@ echo "==> Pre-downloading Piper voices into $TTS_VOICE_DIR: $PRELOAD"
 cd "$ROOT"
 "$VENV/bin/python" - "$PRELOAD" <<'PY'
 import sys
-from services.tts import catalog, config
-from services.tts.engines.piper_engine import download, is_installed
+from semaje_tts import catalog, config
+from semaje_tts.engines.piper_engine import download, is_installed
 wanted = sys.argv[1].split()
 for voice in catalog.piper_voices():
     if voice.id in wanted:
@@ -31,4 +31,4 @@ for voice in catalog.piper_voices():
         if not is_installed(voice, config.VOICE_DIR):
             download(voice, config.VOICE_DIR)
 PY
-echo "Done. Start with: npm run dev:tts   (or services/tts/run.sh)"
+echo "Done. Start with: make run"

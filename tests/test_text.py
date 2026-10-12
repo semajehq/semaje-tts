@@ -1,7 +1,7 @@
 """Gate tests: text cleaning and sentence-aware chunking across scripts."""
 import pytest
 
-from services.tts.text import TextError, chunk, clean, split_sentences, validate
+from semaje_tts.text import TextError, chunk, clean, split_sentences, validate
 
 
 def test_clean_strips_control_chars_but_keeps_joiners():
